@@ -4,35 +4,58 @@
     "config:recommended",
     ":gitSignOff"
   ],
-  "golang": {
-    "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"]
-  },
   "packageRules": [
     {
+      "matchCategories": [
+        "golang"
+      ],
+      "postUpdateOptions": [
+        "gomodTidy",
+        "gomodUpdateImportPaths"
+      ]
+    },
+    {
       "description": "Automerge patch updates",
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": [
+        "patch"
+      ],
       "automerge": true
     },
     {
       "description": "Group minor and patch updates",
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "groupName": "minor and patch dependencies"
     },
     {
       "description": "Require approval for major updates",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "dependencyDashboardApproval": true
     }
   ],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"]
+    "labels": [
+      "security"
+    ]
   },
   "prHourlyLimit": 10,
   "prConcurrentLimit": 3,
-  "schedule": ["every weekend"],
+  "schedule": [
+    "every weekend"
+  ],
   "timezone": "UTC",
-  "labels": ["dependencies"],
-  "assignees": ["@algobardo"],
-  "reviewers": ["@algobardo"]
+  "labels": [
+    "dependencies"
+  ],
+  "assignees": [
+    "@algobardo"
+  ],
+  "reviewers": [
+    "@algobardo"
+  ]
 }
