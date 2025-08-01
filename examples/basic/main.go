@@ -13,7 +13,9 @@ import (
 func main() {
 	// Create a production logger
 	zapLogger, _ := zap.NewProduction()
-	defer zapLogger.Sync()
+	defer func() {
+		_ = zapLogger.Sync()
+	}()
 
 	// Create a context-aware logger
 	logger := ctxzap.New(zapLogger)
@@ -67,7 +69,7 @@ func httpExample(logger *ctxzap.Logger) {
 	handler := loggingMiddleware(logger)(http.HandlerFunc(handleRequest))
 
 	// Simulate a request
-	req, _ := http.NewRequest("GET", "/api/users/123", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/users/123", http.NoBody)
 	req.Header.Set("X-Request-ID", "req-456")
 
 	// Create a mock response writer
@@ -121,7 +123,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(10 * time.Millisecond)
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	_, _ = w.Write([]byte("OK"))
 }
 
 func serviceExample(logger *ctxzap.Logger) {
@@ -137,17 +139,9 @@ func serviceExample(logger *ctxzap.Logger) {
 	)
 
 	// Simulate a business operation
-	user, err := userService.GetUser(ctx, "user789")
-	if err != nil {
-		logger.Error(ctx, "Failed to get user", zap.Error(err))
-		return
-	}
+	user := userService.GetUser(ctx, "user789")
 
-	err = notificationService.SendWelcomeEmail(ctx, user)
-	if err != nil {
-		logger.Error(ctx, "Failed to send welcome email", zap.Error(err))
-		return
-	}
+	notificationService.SendWelcomeEmail(ctx, user)
 
 	logger.Info(ctx, "Business operation completed successfully")
 }
@@ -163,7 +157,7 @@ type User struct {
 	Name  string
 }
 
-func (s *UserService) GetUser(ctx context.Context, userID string) (*User, error) {
+func (s *UserService) GetUser(ctx context.Context, userID string) *User {
 	// Add service-specific fields
 	ctx = ctxzap.WithFields(ctx,
 		zap.String("service", "user"),
@@ -186,7 +180,7 @@ func (s *UserService) GetUser(ctx context.Context, userID string) (*User, error)
 		zap.String("user_email", user.Email),
 	)
 
-	return user, nil
+	return user
 }
 
 // NotificationService demonstrates cross-service context propagation
@@ -194,7 +188,7 @@ type NotificationService struct {
 	logger *ctxzap.Logger
 }
 
-func (s *NotificationService) SendWelcomeEmail(ctx context.Context, user *User) error {
+func (s *NotificationService) SendWelcomeEmail(ctx context.Context, user *User) {
 	// Add notification service fields
 	ctx = ctxzap.WithFields(ctx,
 		zap.String("service", "notification"),
@@ -210,8 +204,6 @@ func (s *NotificationService) SendWelcomeEmail(ctx context.Context, user *User) 
 	s.logger.Info(ctx, "Welcome email sent successfully",
 		zap.String("template", "welcome_v2"),
 	)
-
-	return nil
 }
 
 // mockResponseWriter is a simple mock for demonstration
