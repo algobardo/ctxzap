@@ -102,22 +102,18 @@ fields := ctxzap.FieldsFromContext(ctx)
 
 **When to use CtxZap over Zax:**
 - You prefer methods like `logger.Info(ctx, msg)` over `logger.With(zax.Get(ctx)...).Info(msg)`
-- You need field deduplication/override capabilities
-- You want better performance with empty contexts
 
 ### CtxZap vs grpc-ecosystem/ctxzap
 
 | Feature | CtxZap | grpc-ecosystem/ctxzap |
 |---------|---------|----------------------|
 | Store fields only | ✅ | ❌ (stores logger) |
-| Performance | Better | Good |
 | gRPC integration | ❌ | ✅ |
 | Standalone usage | ✅ | ✅ |
 | Field management | Advanced | Basic |
 
 **When to use CtxZap over grpc-ecosystem/ctxzap:**
 - You're not using gRPC or don't need gRPC-specific features
-- You want better performance (storing fields vs entire logger)
 - You need more control over field management
 
 ## Advanced Usage
